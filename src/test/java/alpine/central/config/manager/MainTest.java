@@ -6,10 +6,9 @@ import java.util.Properties;
 class MainTest {
 
     @Test
-    void main() {
+    void loadPropertiesFromDefaultLuaFile() {
         Properties properties = new GmailEmailConfig().getServerProperties();
         System.out.println(properties);
-
     }
 
     @Test
