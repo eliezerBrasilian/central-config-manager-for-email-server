@@ -1,5 +1,7 @@
 package alpine.central.config.manager;
 
+import java.io.InputStream;
+
 /**
  * Classe que representa uma configuração de servidor de e-mail para o Gmail.
  * Esta classe estende {@link EmailConfig} e implementa o método abstrato {@link #getMainTableTable()}
@@ -32,10 +34,10 @@ public class GmailEmailConfig extends EmailConfig{
      * Inicializa a configuração de e-mail para o Gmail utilizando o arquivo Lua fornecido.
      * </p>
      *
-     * @param luaFilePath O caminho para o arquivo Lua que contém as configurações do Gmail.
+     * @param luaFileStream O fluxo de entrada para o arquivo Lua a ser carregado.
      */
-    public GmailEmailConfig(String luaFilePath){
-        super(luaFilePath);
+    public GmailEmailConfig(InputStream luaFileStream){
+        super(luaFileStream);
     }
     @Override
     public String getMainTableTable() {

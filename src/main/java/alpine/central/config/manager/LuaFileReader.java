@@ -1,28 +1,17 @@
 package alpine.central.config.manager;
 
-import org.luaj.vm2.Globals;
-import org.luaj.vm2.LuaTable;
-import org.luaj.vm2.LuaValue;
+import org.luaj.vm2.*;
 import org.luaj.vm2.lib.jse.JsePlatform;
 
+import java.io.InputStream;
 import java.util.Properties;
 
-/**
- * Classe responsável por carregar e interpretar arquivos de configuração escritos em Lua.
- * Permite inicializar uma instância singleton e ler as propriedades definidas em tabelas Lua.
- *
- * Esta classe utiliza a biblioteca LuaJ para executar e processar scripts Lua.
- */
 public class LuaFileReader {
     // Instância única da classe (Singleton)
     private static LuaFileReader instance = null;
 
     // Variáveis globais do ambiente Lua
-    private static Globals globals;
-    // Chunk de código carregado do arquivo Lua
-    private static LuaValue chunk;
-    // Tabela principal no arquivo Lua
-    private static LuaTable mainTable;
+    final private Globals globals;
 
     /**
      * Obtém a instância única de LuaFileReader.
@@ -32,37 +21,42 @@ public class LuaFileReader {
      */
     public static LuaFileReader getInstance() {
         if (instance == null) {
-            instance = new LuaFileReader(LuaFileReader.class.getClassLoader().getResource("email_props.lua").getPath());
+            InputStream luaFileStream = LuaFileReader.class.getClassLoader().getResourceAsStream("email_props.lua");
+            if (luaFileStream == null) {
+                throw new RuntimeException("Arquivo Lua não encontrado: email_props.lua");
+            }
+            instance = new LuaFileReader(luaFileStream);
         }
         return instance;
     }
 
     /**
-     * Obtém a instância única de LuaFileReader, inicializando-a com um caminho customizado para o arquivo Lua.
+     * Cria uma nova instância de LuaFileReader com um InputStream personalizado.
      *
-     * @param luaFilePath O caminho para o arquivo Lua a ser carregado.
-     * @return A instância única de LuaFileReader.
+     * @param luaFileStream O fluxo de entrada para o arquivo Lua a ser carregado.
+     * @return Uma nova instância de LuaFileReader.
      */
-    public static LuaFileReader getInstance(String luaFilePath) {
-        if (instance == null) {
-            instance = new LuaFileReader(luaFilePath);
+    public static LuaFileReader createInstance(InputStream luaFileStream) {
+        if (luaFileStream == null) {
+            throw new RuntimeException("O InputStream fornecido é nulo.");
         }
-        return instance;
+        return new LuaFileReader(luaFileStream);
     }
 
     /**
      * Construtor privado que carrega o arquivo Lua fornecido e inicializa o ambiente.
      *
-     * @param luaFilePath O caminho para o arquivo Lua a ser carregado.
+     * @param luaFileStream O fluxo de entrada para o arquivo Lua a ser carregado.
      * @throws RuntimeException Se houver erros ao carregar ou executar o arquivo Lua.
      */
-    private LuaFileReader(String luaFilePath) throws RuntimeException {
+    private LuaFileReader(InputStream luaFileStream) throws RuntimeException {
         try {
             globals = JsePlatform.standardGlobals();
-            chunk = globals.loadfile(luaFilePath);
+            // Chunk de código carregado do arquivo Lua
+            LuaValue chunk = globals.load(luaFileStream, "script.lua", "t", globals);
             chunk.call();
         } catch (Exception e) {
-            throw new RuntimeException("Erro ao carregar o arquivo Lua: " + luaFilePath, e);
+            throw new RuntimeException("Erro ao carregar o arquivo Lua", e);
         }
     }
 
@@ -73,8 +67,9 @@ public class LuaFileReader {
      * @return Um objeto {@link Properties} contendo as chaves e valores da tabela Lua.
      * @throws IllegalArgumentException Se a tabela principal não for encontrada no arquivo Lua.
      */
-    public static Properties initReader(String mainTableName) throws IllegalArgumentException {
-        mainTable = (LuaTable) globals.get(mainTableName);
+    public Properties initReader(String mainTableName) throws IllegalArgumentException {
+        // Tabela principal no arquivo Lua
+        LuaTable mainTable = (LuaTable) globals.get(mainTableName);
 
         if (mainTable.equals(LuaValue.NIL)) {
             throw new IllegalArgumentException("Tabela principal não encontrada: " + mainTableName);

@@ -1,5 +1,6 @@
 package alpine.central.config.manager;
 
+import java.io.InputStream;
 import java.util.Properties;
 
 /**
@@ -53,15 +54,16 @@ public abstract class EmailConfig {
      * Construtor que permite especificar um caminho personalizado para o arquivo Lua.
      * Utiliza o arquivo fornecido para carregar as configurações do servidor de e-mail.
      *
-     * @param luaFilePath O caminho para o arquivo Lua que contém as configurações.
+     * @param luaFileStream O fluxo de entrada para o arquivo Lua a ser carregado.
      * @throws IllegalArgumentException Se o nome da tabela principal estiver vazio.
      */
-    public EmailConfig(String luaFilePath) {
+    public EmailConfig( InputStream luaFileStream) {
         if (getMainTableTable().isEmpty()) {
             throw new IllegalArgumentException("table name is empty");
         }
-        LuaFileReader.getInstance(luaFilePath);
-        props = LuaFileReader.initReader(getMainTableTable());
+
+        LuaFileReader reader = LuaFileReader.createInstance(luaFileStream);
+        props = reader.initReader(getMainTableTable());
     }
 
     /**
@@ -73,8 +75,9 @@ public abstract class EmailConfig {
         if (getMainTableTable().isEmpty()) {
             throw new IllegalArgumentException("table name is empty");
         }
-        LuaFileReader.getInstance();
-        props = LuaFileReader.initReader(getMainTableTable());
+
+        LuaFileReader reader = LuaFileReader.getInstance();
+        props = reader.initReader(getMainTableTable());
     }
 
     /**
