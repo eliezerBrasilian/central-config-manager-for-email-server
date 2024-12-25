@@ -87,7 +87,7 @@ public abstract class EmailConfig {
      *
      * @return Um objeto {@link Properties} contendo as configurações do servidor.
      */
-    protected Properties getServerProperties() {
+    public Properties getServerProperties() {
         return props;
     }
 }

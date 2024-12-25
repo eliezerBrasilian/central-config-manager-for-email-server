@@ -13,3 +13,4 @@ Gmail = {
     ["mail.smtp.socketFactory.port"] = 465,
     ["mail.smtp.sockerFactory.class"] = "javax.net.ssl.SSLSocketFactory"
 }
+
