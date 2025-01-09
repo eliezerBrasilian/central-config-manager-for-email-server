@@ -6,7 +6,7 @@
 
     <groupId>alpine.central.config.manager</groupId>
     <artifactId>alpine_central_config_file_manager</artifactId>
-    <version>1.4-SNAPSHOT</version>
+    <version>1.5-SNAPSHOT</version>
     <description>Gerenciador de arquivo .lua que contém configurações de email</description>
 
     <properties>
